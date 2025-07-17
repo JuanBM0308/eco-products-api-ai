@@ -1,5 +1,10 @@
 package com.juanba.eco_products_ai.controllers;
 
+import com.knuddels.jtokkit.Encodings;
+import com.knuddels.jtokkit.api.Encoding;
+import com.knuddels.jtokkit.api.EncodingRegistry;
+import com.knuddels.jtokkit.api.EncodingType;
+import com.knuddels.jtokkit.api.ModelType;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +18,13 @@ public class GenerateCategoryController {
     private final ChatClient chatClient;
 
     public GenerateCategoryController(ChatClient.Builder chatClientBuilder) {
-        this.chatClient = chatClientBuilder.build();
+        this.chatClient = chatClientBuilder
+                .defaultOptions(
+                        ChatOptions.builder()
+                                .model("gpt-4o-mini")
+                                .build()
+                )
+                .build();
     }
 
     @GetMapping
@@ -37,15 +48,25 @@ public class GenerateCategoryController {
                 Producto: Pelota de golf
                 Respuesta: Deportes
                 """;
+        var tokens = tokenCounter(system, product);
+        System.out.println(tokens);
+
         return this.chatClient.prompt()
                 .system(system)
                 .user(product)
                 .options(
                         ChatOptions.builder()
+                                .model("gpt-4o-mini")
                                 .temperature(0.8)
                                 .build()
                 )
                 .call()
                 .content();
+    }
+
+    private int tokenCounter(String system, String user) {
+        EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
+        Encoding enc = registry.getEncodingForModel(ModelType.GPT_4O_MINI);
+        return enc.countTokens(system + user);
     }
 }
