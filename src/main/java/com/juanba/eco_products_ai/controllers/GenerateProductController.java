@@ -1,6 +1,7 @@
 package com.juanba.eco_products_ai.controllers;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ public class GenerateProductController {
         var userInput = "Genera 3 productos ecologicos";
         return this.chatClient.prompt()
                 .user(userInput)
+                .advisors(new SimpleLoggerAdvisor())
                 .call()
                 .content();
     }
